@@ -157,8 +157,33 @@ namespace Game
                 }
             }
         }
+      
+        static void WaveInitialization(List<Enemies> enemies)//Initialize the Wave of Enemies(Top Left)
+        {
+            Random randGen = new Random();
 
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                int randPosY = randGen.Next(0, 5);
+                int randType = randGen.Next(0, 2);
+                enemies.Add(new Enemies(randType, 100, 0, randPosY, true));
 
+            }
+        }
+        static void WaveMovement(List<Enemies> enemies, string direction)//Moves the enemies in the wave
+        {
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                if (enemies[i].IsAlive)
+                {
+                    enemies[i].EnemyMovement(direction);
+                }
+                if (enemies[i].Health <= 0)
+                {
+                    enemies[i].IsAlive = false;
+                }
+            }
+        }
         static void Main(string[] args)
         {
             RemoveScrollBars();
@@ -187,6 +212,8 @@ namespace Game
                     {
                         MovePlayer(keyInfo.Key);
                         PlaceTowers(keyInfo.Key); // Implement towers!
+                        
+                        
                     }
                     else
                     {

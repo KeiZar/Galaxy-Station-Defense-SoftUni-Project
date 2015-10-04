@@ -7,82 +7,33 @@ namespace Game
 {
     class Enemies
     {
-        private  int health;
-        public  int Health { get; set; }
-                
-        private  bool isAlive;
-        public  bool IsAlive{ get; set; }
-                
-        private  int enemyType;
-        public  int EnemyType { get; set; }// 0 - Some Type ; 1 - Some Type; 2-Some Type
-                
-        private  double enemyPosX;
-        public  double EnemyPosX{ get; set; }
-                
-        private  double enemyPosY;
-        public  double EnemyPosY{ get; set; }
-                
-        private  double enemySpeed;
-        public  double EnemySpeed{ get; set; }
+        private int health;
+        private bool isAlive;
+        private int enemyType;
+        private double enemyPosX;
+        private double enemyPosY;
+        private double enemySpeed;
+        private int enemyScore;
 
-       
-        //public int GetHealth()
-        //{
-        //    return health;
-        //}
-        //public int GetEnemyType()
-        //{
-        //    return enemyType;
-        //}
-        //public double GetEnemyPosX()
-        //{
-        //    return enemyPosX;
-        //}
-        //public double GetEnemyPosY()
-        //{
-        //    return enemyPosY;
-        //}
-        //public bool GetIsAlive()
-        //{
-        //    return isAlive;
-        //}
-        //public double GetEnemySpeed()
-        //{
-        //    return enemySpeed;
-        //}
-        //public void SetHealth(int h)
-        //{
-        //    health = h;
-        //}
-        //public void SetEnemyType(int type)
-        //{
-        //    enemyType = type;
-        //}
-        //public void SetEnemyPosX(int posX)
-        //{
-        //    enemyPosX = posX;
-        //}
-        //public void SetEnemyPosY(int posY)
-        //{
-        //    enemyPosY = posY;
-        //}
-        //public void SetIsAlive(bool alive)
-        //{
-        //    isAlive = alive;
-        //}
-        //public void SetEnemySpeed(double speed)
-        //{
-        //    enemySpeed = speed;
-        //}
 
-        public Enemies(int type, int healthP, int posX, int posY, bool isAliveParam)
+        
+        public Enemies(int type, int health, int posX, int posY, bool isAliveb)
         {
-            enemyType = type;
-            enemyPosX = posX;
-            enemyPosY = posY;
-            isAlive = isAliveParam;
-            health = healthP;
+            this.EnemyType = type;
+            this.EnemyPosX = posX;
+            this.EnemyPosY = posY;
+            this.IsAlive = isAliveb;
+            this.Health = health;
         }
+
+        public int Health { get; set; }
+        public bool IsAlive { get; set; }
+        public int EnemyType { get; set; }// 0 - Ground type ; 1 - Air Type;
+        public double EnemyPosX { get; set; }
+        public double EnemyPosY { get; set; }
+        public double EnemySpeed { get; set; }
+        public int EnemyScore { get; set; }
+
 
         public void EnemyMovement(string direction)
         {
@@ -109,7 +60,7 @@ namespace Game
             }
         }
 
-        public  void DrawEnemy()
+        public void DrawEnemy()
         {
             Console.SetCursorPosition((int)enemyPosX, (int)enemyPosY);
             string enemyImage;

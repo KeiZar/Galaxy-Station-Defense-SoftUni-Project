@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,29 +19,7 @@ namespace Game
         static bool isRuning = true;
         static bool startNewGame = false;
         static int showMenus = 0; // 0 - main menu, 1 - highscore table, 2 - How to play
-
-        /* Tower parameters
-            Range => 3 - short, 5 - medium, 7 - long
-            Power => 20 - low, 40 - medium, 60 high
-            Fire rate = 3 - slow, 5 - medium, 7 - high
-            Tower type = 1 - short Range, 2 - medium range, 3 - long range, 4 - air type, 5 - crowdcontrol type
-        */
-         static int towerType = 0;
-        static int towerRange = 0;
-        static int towerPower = 0;
-        static bool isGround = true;
-        static int fireRate = 0;
-        private static bool crowdControl = false;
-
-        private static void IceTower() //This is the Slow/CrowdControl tower
-        {
-            towerRange = 5;
-            if (crowdControl == false)
-            {
-                crowdControl = true;
-            }
-
-        }
+        private static string playerScore = "Highscore! YAAA!";
 
         static void RemoveScrollBars() // Sets window size and locks it in place.
         {
@@ -85,12 +64,13 @@ namespace Game
             {
                 if (showMenus == 0)
                 {
-                    isRuning = false;
+                    isRuning = false; // This kills the console.
                 }
-                else if (showMenus == 1 || showMenus == 2)
+                if (showMenus == 1 || showMenus == 2)
                 {
-                    showMenus = 0;
+                    showMenus = 0; 
                 }
+                
             }
         }
 
@@ -98,32 +78,69 @@ namespace Game
         {
 
             Console.WriteLine("**HIGHSCORE TABLE**");
-            // TODO: Implement reading FROM a file and writing on the console!
+            StreamReader highscoreReader = new StreamReader(@"..\..\highscore.txt");
+            string reader;
+            Console.WriteLine(showMenus);
+            using (highscoreReader)
+            {
+                do
+                {
+                    reader = highscoreReader.ReadLine();
+
+                    Console.WriteLine("{0}", reader);
+
+                } while (reader != null);
+            }
+            Thread.Sleep(1000); // TODO: REMOVE THIS AT SOME POINT!!!
 
 
         }
 
-        private static void PlaceTowers(ConsoleKey key)
+        static void WriteHighscore() // Use this when game has finished to write the new highscore.
         {
+            /*
+            Basic highscore writer to file.
+            Will be implemented more function when other things are ready.
+            */
+            
+            StreamWriter highscoreWriter = new StreamWriter(@"..\..\highscore.txt");
+            bool hasPlayerDied = true;
+            using (highscoreWriter)
+            {
+                do
+                {
+                    highscoreWriter.WriteLine(playerScore);
+
+                } while (hasPlayerDied);
+            }
+        } 
+
+        private static void PlaceTowers(ConsoleKey key, Towers tower)
+        {
+            int towerType;
             if (key == ConsoleKey.NumPad1)
             {
-                // TODO: Place tower #1 on player possition
+                towerType = 1;
+                tower.TowerPlacement(playerCurrentPossitionX, playerCurrentPossitionY, towerType);
             }
             if (key == ConsoleKey.NumPad2)
             {
-                // TODO: Place tower #2 on player possition
+                towerType = 2;
+                tower.TowerPlacement(playerCurrentPossitionX, playerCurrentPossitionY, towerType);
             }
             if (key == ConsoleKey.NumPad3)
             {
-                // TODO: Place tower #3 on player possition
+                towerType = 3;
+                tower.TowerPlacement(playerCurrentPossitionX, playerCurrentPossitionY, towerType);
             }
             if (key == ConsoleKey.NumPad4)
             {
-                // TODO: Place tower #4 on player possition
+                towerType = 4;
+                tower.TowerPlacement(playerCurrentPossitionX, playerCurrentPossitionY, towerType);
             }
-        } // TODO: Implement tower placement
+        }
 
-        private static void MovePlayer(ConsoleKey key) //Player movement - needs adjusting if place size bigger then 1 symbol TODO: Detect collision with station!
+        private static void MovePlayer(ConsoleKey key) //Player movement - needs adjusting if station size bigger then 1 symbol TODO: Detect collision with station!
         {
             if (key == ConsoleKey.UpArrow)
             {
@@ -164,13 +181,14 @@ namespace Game
 
             for (int i = 0; i < enemies.Count; i++)
             {
-                int randPosY = randGen.Next(0, 5);
+                int randPosX = randGen.Next(1, 49);
                 int randType = randGen.Next(0, 2);
-                enemies.Add(new Enemies(randType, 100, 0, randPosY, true));
+                enemies.Add(new Enemies(randType, 100, randPosX, 1, true));
 
             }
         }
-        static void WaveMovement(List<Enemies> enemies, string direction)//Moves the enemies in the wave
+
+        static void WaveMovement(List<Enemies> enemies, string direction) //Moves the enemies in the wave // Move direction should be random!
         {
             for (int i = 0; i < enemies.Count; i++)
             {
@@ -184,10 +202,17 @@ namespace Game
                 }
             }
         }
+
         static void Main(string[] args)
         {
             RemoveScrollBars();
 
+            // PLACEHOLDERS!!!
+            List<Enemies> mainEnemies = new List<Enemies>();
+            Towers tower = new Towers();
+            string someDirection = "Down";
+            // PLACEHOLDERS!!!
+            
 
 
             while (isRuning)
@@ -199,11 +224,7 @@ namespace Game
                 We will make a lot of static methods and we will only write them in this file. No OOP elements!
                 */
 
-                /*
-                TODO: Implement Tower placement function
-                TODO: Towers
-                TODO: Implement 4 different towers [See Trello for more details]
-                */
+                
                 //Prevents Console getting stuck on waiting for a key press, it only triggered when a key is pressed.
                 if (Console.KeyAvailable)
                 {
@@ -211,10 +232,8 @@ namespace Game
                     if (startNewGame)
                     {
                         MovePlayer(keyInfo.Key);
-                        PlaceTowers(keyInfo.Key); // Implement towers!
-                        
-                        
-                    }
+                        PlaceTowers(keyInfo.Key, tower); // Implement towers!
+                     }
                     else
                     {
                         MenuControl(keyInfo.Key);
@@ -222,6 +241,10 @@ namespace Game
 
 
                 }
+                /*
+                TODO: Towers
+                TODO: Implement 4 different towers [See Trello for more details]
+                */
 
                 Console.Clear();
                 // TODO: Implement "DrawMenu();" else Console.Clear(); just wipes the console entirely
@@ -243,6 +266,8 @@ namespace Game
                 TODO: Implement enemy HP, Points and gold drop                
                 TODO: Implement ground and air only enemies
                 */
+                WaveInitialization(mainEnemies);
+                WaveMovement(mainEnemies, someDirection); // Enemies go down on console when spawned - temporary - change someDirection for anther direction
 
                 /*
                 TODO: Map
@@ -259,7 +284,5 @@ namespace Game
                 Thread.Sleep(60);
             }
         }
-
-
     }
 }

@@ -19,28 +19,32 @@ namespace Game
         static bool startNewGame = false;
         static int showMenus = 0; // 0 - main menu, 1 - highscore table, 2 - How to play
 
-        /* Tower parameters
-            Range => 3 - short, 5 - medium, 7 - long
-            Power => 20 - low, 40 - medium, 60 high
-            Fire rate = 3 - slow, 5 - medium, 7 - high
-            Tower type = 1 - short Range, 2 - medium range, 3 - long range, 4 - air type, 5 - crowdcontrol type
-        */
-         static int towerType = 0;
-        static int towerRange = 0;
-        static int towerPower = 0;
-        static bool isGround = true;
-        static int fireRate = 0;
+        /* Tower Parametars
+         * Range => 3 - short, 5 - medium, 7 - long
+         * Power => 20 - low, 40 - medium, 60 - high
+         * Fire Rate => 3 - slow, 5 - medium, 7 - high
+         * Tower type = 1 - short Range, 2 - medium range, 3 - long range, 4 - air type, 5 - crowdcontrol type
+         */
+
+        private static int towerType = 0;
+        private static int towerRange = 0;
+        private static int towerPower = 0;
+        private static int fireRate = 0;
+        private static bool isGround = true;
         private static bool crowdControl = false;
 
         private static void IceTower() //This is the Slow/CrowdControl tower
-        {
-            towerRange = 5;
-            if (crowdControl == false)
-            {
-                crowdControl = true;
-            }
+    {
+	    towerType = 5;
+	    towerRange = 5;
+	    if (crowdControl == false)
+	    {
+		crowdControl = true;
+	    }
 
-        }
+    }
+            
+        
 
         static void RemoveScrollBars() // Sets window size and locks it in place.
         {
@@ -179,6 +183,37 @@ namespace Game
                 TODO: Towers
                 TODO: Implement 4 different towers [See Trello for more details]
                 */
+                private static void ShockTower
+                {
+                    static int towerRange = 6;
+                    static int towerPower = 4;
+                    static int fireRate = 1;
+                    static bool isGround = true;
+                }
+
+                private static void FireTower
+                {
+                    static int towerRange = 2;
+                    static int towerPower = 1;
+                    static int fireRate = 4;
+                    static bool isGround = true;
+                }
+                private static void AirTower
+                {
+                    static int towerRange = 4;
+                    static int towerPower = 4;
+                    static int fireRate = 4;
+                    static bool isGround = false;
+                    static bool isAir = true;
+                }
+                private static void IceTower
+                {
+                    static int towerRange = 4;
+                    static int towerPower = 0;
+                    static bool frostAttack = true
+                    static int fireRate = 2;
+                    static bool isGround = true;
+                }
                 //Prevents Console getting stuck on waiting for a key press, it only triggered when a key is pressed.
                 if (Console.KeyAvailable)
                 {

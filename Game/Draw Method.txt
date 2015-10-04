@@ -1,1 +1,1 @@
-Just started working on the draw method for the game.
+Just started working on the draw method for the game which includes drawing the station and the terrain.

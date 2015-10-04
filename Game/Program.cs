@@ -151,13 +151,13 @@ namespace Game
         {
             for (int i = 0; i < enemies.Count; i++)
             {
-                if (enemies[i].GetIsAlive())
+                if (enemies[i].IsAlive)
                 {
                     enemies[i].EnemyMovement(direction);
                 }
-                if (enemies[i].GetHealth() <= 0)
+                if (enemies[i].Health <= 0)
                 {
-                    enemies[i].SetIsAlive(false);
+                    enemies[i].IsAlive = false;
                 }
             }
         }

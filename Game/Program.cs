@@ -12,8 +12,9 @@ namespace Game
 {
     class Program
     {
-        static int playerStartPossitionX = 0;
-        static int playerStartPossitionY = 0;
+        static List<Towers> towers = new List<Towers>();
+        static int playerStartPossitionX = 3;
+        static int playerStartPossitionY = 3;
         static int playerCurrentPossitionX = 0;
         static int playerCurrentPossitionY = 0;
         static bool isRuning = true;
@@ -96,13 +97,13 @@ namespace Game
 
         }
 
-        static void WriteHighscore() // Use this when game has finished to write the new highscore.
+        private static void WriteHighscore() // Use this when game has finished to write the new highscore.
         {
             /*
             Basic highscore writer to file.
             Will be implemented more function when other things are ready.
             */
-            
+
             StreamWriter highscoreWriter = new StreamWriter(@"..\..\highscore.txt");
             bool hasPlayerDied = true;
             using (highscoreWriter)
@@ -113,63 +114,110 @@ namespace Game
 
                 } while (hasPlayerDied);
             }
-        } 
+        }
 
-        private static void PlaceTowers(ConsoleKey key, Towers tower)
-        {
+        static void DrawPlayerMovement()
+           {
+               Console.SetCursorPosition(playerCurrentPossitionX, playerCurrentPossitionY);
+           }
+           private static void PlaceTowers(ConsoleKey key, List<Towers> towers) 
+           {
+            DrawPlayerMovement();
             int towerType;
             if (key == ConsoleKey.NumPad1)
             {
-                towerType = 1;
-                tower.TowerPlacement(playerCurrentPossitionX, playerCurrentPossitionY, towerType);
+                bool couldAdd = Towers.CouldAddTowerCheck(playerCurrentPossitionX, playerCurrentPossitionY, towers);
+                if (couldAdd)
+                {
+                    towers.Add(new Towers(1, 3, 20, true, 3, false, playerCurrentPossitionX, playerCurrentPossitionY));
+                }
+                else
+                {
+                    Console.Beep();
+                }
+                Towers.TowerPlacement(towers);
+                playerCurrentPossitionX = Console.CursorLeft;
+                playerCurrentPossitionY = Console.CursorTop;
             }
             if (key == ConsoleKey.NumPad2)
             {
-                towerType = 2;
-                tower.TowerPlacement(playerCurrentPossitionX, playerCurrentPossitionY, towerType);
+                bool couldAdd = Towers.CouldAddTowerCheck(playerCurrentPossitionX, playerCurrentPossitionY, towers);
+                if (couldAdd)
+                {
+                    towers.Add(new Towers(2,7, 20, true, 3, false, playerCurrentPossitionX, playerCurrentPossitionY));
+                }
+                else
+                {
+                    Console.Beep();
+                }
+                Towers.TowerPlacement(towers);
+                playerCurrentPossitionX = Console.CursorLeft;
+                playerCurrentPossitionY = Console.CursorTop;
             }
             if (key == ConsoleKey.NumPad3)
             {
-                towerType = 3;
-                tower.TowerPlacement(playerCurrentPossitionX, playerCurrentPossitionY, towerType);
+                bool couldAdd = Towers.CouldAddTowerCheck(playerCurrentPossitionX, playerCurrentPossitionY, towers);
+                if (couldAdd)
+                {
+                    towers.Add(new Towers(3, 7, 20, true, 3, false, playerCurrentPossitionX, playerCurrentPossitionY));
+                }
+                else
+                {
+                    Console.Beep();
+                }
+                Towers.TowerPlacement(towers);
+                playerCurrentPossitionX = Console.CursorLeft;
+                playerCurrentPossitionY = Console.CursorTop;
             }
             if (key == ConsoleKey.NumPad4)
             {
-                towerType = 4;
-                tower.TowerPlacement(playerCurrentPossitionX, playerCurrentPossitionY, towerType);
+                bool couldAdd = Towers.CouldAddTowerCheck(playerCurrentPossitionX, playerCurrentPossitionY, towers);
+                if (couldAdd)
+                {
+                    towers.Add(new Towers(4, 7, 20, true, 3, false, playerCurrentPossitionX, playerCurrentPossitionY));
+                }
+                else
+                {
+                    Console.Beep();
+                }
+                Towers.TowerPlacement(towers);
+                playerCurrentPossitionX = Console.CursorLeft;
+                playerCurrentPossitionY = Console.CursorTop;
             }
         }
 
-        private static void MovePlayer(ConsoleKey key) //Player movement - needs adjusting if station size bigger then 1 symbol TODO: Detect collision with station!
+        
+     
+        private static void MovePlayer(ConsoleKey key) //Player movement - needs adjusting if place size bigger then 1 symbol TODO: Detect collision with station!
         {
             if (key == ConsoleKey.UpArrow)
             {
-                if (playerCurrentPossitionX > Console.WindowHeight)
+                if (playerCurrentPossitionY > 3)
                 {
-                    playerCurrentPossitionX--;
+                    playerCurrentPossitionY-=1;
                 }
 
             }
             if (key == ConsoleKey.DownArrow)
             {
-                if (playerCurrentPossitionX < Console.WindowHeight)
+                if (playerCurrentPossitionY < Console.WindowHeight-4)
                 {
-                    playerCurrentPossitionX++;
+                    playerCurrentPossitionY+=1;
                 }
 
             }
             if (key == ConsoleKey.LeftArrow)
             {
-                if (playerCurrentPossitionY > Console.WindowWidth)
+                if (playerCurrentPossitionX > 2)
                 {
-                    playerCurrentPossitionY--;
+                    playerCurrentPossitionX-=1;
                 }
             }
             if (key == ConsoleKey.RightArrow)
             {
-                if (playerCurrentPossitionY < Console.WindowWidth)
+                if (playerCurrentPossitionX < Console.WindowWidth-6)
                 {
-                    playerCurrentPossitionY++;
+                    playerCurrentPossitionX+=1;
 
                 }
             }
@@ -209,7 +257,7 @@ namespace Game
 
             // PLACEHOLDERS!!!
             List<Enemies> mainEnemies = new List<Enemies>();
-            Towers tower = new Towers();
+           
             string someDirection = "Down";
             // PLACEHOLDERS!!!
             
@@ -232,21 +280,19 @@ namespace Game
                     if (startNewGame)
                     {
                         MovePlayer(keyInfo.Key);
-                        PlaceTowers(keyInfo.Key, tower); // Implement towers!
+                        PlaceTowers(keyInfo.Key,towers); // Implement towers!
                      }
                     else
                     {
                         MenuControl(keyInfo.Key);
                     }
-
-
                 }
                 /*
                 TODO: Towers
                 TODO: Implement 4 different towers [See Trello for more details]
                 */
 
-                Console.Clear();
+                //Console.Clear();
                 // TODO: Implement "DrawMenu();" else Console.Clear(); just wipes the console entirely
 
                 /*

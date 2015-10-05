@@ -1,1 +1,3 @@
 Just started working on the draw method for the game which includes drawing the station and the terrain.
+
+Update: The station draw is finished!

@@ -10,3 +10,9 @@ E:\Documents\Visual Studio 2010\GitNew\Game\bin\Debug\normnfkc.nlp
 E:\Documents\Visual Studio 2010\GitNew\Game\bin\Debug\normnfkd.nlp
 E:\Documents\Visual Studio 2010\GitNew\Game\obj\Debug\Game.exe
 E:\Documents\Visual Studio 2010\GitNew\Game\obj\Debug\Game.pdb
+D:\SoftUni\09.2015 - Advanced C#\Teamwork\Galaxy Station Defense\Game\bin\Debug\Game.exe.config
+D:\SoftUni\09.2015 - Advanced C#\Teamwork\Galaxy Station Defense\Game\obj\Debug\Game.exe
+D:\SoftUni\09.2015 - Advanced C#\Teamwork\Galaxy Station Defense\Game\obj\Debug\Game.pdb
+D:\SoftUni\09.2015 - Advanced C#\Teamwork\Galaxy Station Defense\Game\bin\Debug\Game.exe
+D:\SoftUni\09.2015 - Advanced C#\Teamwork\Galaxy Station Defense\Game\bin\Debug\Game.pdb
+D:\SoftUni\09.2015 - Advanced C#\Teamwork\Galaxy Station Defense\Game\obj\Debug\Game.csprojResolveAssemblyReference.cache

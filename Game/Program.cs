@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 
@@ -16,8 +17,8 @@ namespace Game
         static Stopwatch stopwatch = new Stopwatch();
         private static List<Towers> towers = new List<Towers>();
         private static List<Enemies> mainEnemies = new List<Enemies>();
-        private static int playerStartPossitionX = 3;
-        private static int playerStartPossitionY = 3;
+        private static int playerStartPossitionX = Console.WindowHeight / 2;
+        private static int playerStartPossitionY = Console.WindowWidth / 2;
         private static int playerCurrentPossitionX;
         private static int playerCurrentPossitionY;
         private static bool isRuning = true;
@@ -78,6 +79,7 @@ namespace Game
                 if (showMenus == 0 || showMenus == 2)
                 {
                     showMenus = 1;
+                    Console.Clear();
                     ShowHighscore();
                 }
             }
@@ -87,6 +89,8 @@ namespace Game
                 if (showMenus == 0 || showMenus == 1)
                 {
                     showMenus = 2;
+                    Console.Clear();
+                    ShowControls();
                 }
             }
             if (key == ConsoleKey.V)
@@ -100,6 +104,16 @@ namespace Game
                 if (showMenus == 1 || showMenus == 2)
                 {
                     showMenus = 0;
+                    Console.Clear();
+                    Console.SetCursorPosition(45, 20);
+                    Console.WriteLine("Press Z - Start New Game");
+                    Console.SetCursorPosition(45, 22);
+                    Console.WriteLine("Press X - Highscore Table");
+                    Console.SetCursorPosition(45, 24);
+                    Console.WriteLine("Press C - How to play");
+                    Console.SetCursorPosition(45, 26);
+                    Console.WriteLine("Press V - Exit game/back button");
+
                 }
 
             }
@@ -111,45 +125,56 @@ namespace Game
 
         private static void ShowHighscore()
         {
-
-            Console.WriteLine("**HIGHSCORE TABLE**");
+            int writerX = 40;
+            int writerY = 20;
+            Console.SetCursorPosition(writerX, writerY - 1);
+            Console.WriteLine("***HIGHSCORE TABLE***");
             StreamReader highscoreReader = new StreamReader(@"..\..\highscore.txt");
             string reader;
-            Console.WriteLine(showMenus);
+
+
             using (highscoreReader)
             {
                 do
                 {
                     reader = highscoreReader.ReadLine();
-
+                    Console.SetCursorPosition(writerX, writerY);
                     Console.WriteLine("{0}", reader);
+                    writerY++;
 
                 } while (reader != null);
             }
-            Thread.Sleep(1000); // TODO: REMOVE THIS AT SOME POINT!!!
         }
 
         #endregion
 
         #region WriteHighscore()
 
-        private static void WriteHighscore() // Use this when game has finished to write the new highscore.
+        private static void WriteHighscore(string playerName, int playerMoney) // Use this when game has finished to write the new highscore.
         {
             /*
             Basic highscore writer to file.
             Will be implemented more function when other things are ready.
             */
 
-            StreamWriter highscoreWriter = new StreamWriter(@"..\..\highscore.txt");
-            bool hasPlayerDied = true;
-            using (highscoreWriter)
-            {
-                do
-                {
-                    highscoreWriter.WriteLine(playerMoney);
+            StreamReader highscoreReader = new StreamReader(@"..\..\highscore.txt");
 
-                } while (hasPlayerDied);
+            bool hasPlayerDied = false;
+            int counter = 0;
+
+            using (highscoreReader)
+            {
+                while (highscoreReader.ReadLine() != null)
+                {
+                    counter++;
+                }
             }
+            if (counter >= 0)
+            {
+                counter++;
+                File.AppendAllLines(@"..\..\highscore.txt", new[] { string.Format("{0}) {1} - {2}", counter, playerName, playerMoney) });
+            }
+
         }
 
         #endregion
@@ -158,7 +183,8 @@ namespace Game
 
         private static void DrawPlayerMovement()
         {
-            Console.SetCursorPosition(playerCurrentPossitionX, playerCurrentPossitionY);
+
+            Console.SetCursorPosition(playerStartPossitionX, playerStartPossitionY);
         }
 
         #endregion
@@ -264,7 +290,7 @@ namespace Game
         #region MovePlayer
 
         private static void MovePlayer(ConsoleKey key)
-            //Player movement - needs adjusting if place size bigger then 1 symbol TODO: Detect collision with station!
+        //Player movement - needs adjusting if place size bigger then 1 symbol TODO: Detect collision with station!
         {
             if (key == ConsoleKey.UpArrow)
             {
@@ -321,7 +347,23 @@ namespace Game
         //    Thread.Sleep(100);
 
         //}
-#endregion
+        static void ShowControls()
+        {
+            string controls = @"
+            Place towers anywhere on the field to protect the station.
+                       
+            NumPad 1 - Tower type 1
+            NumPad 2 - Tower Type 2
+            Numpad 3 - Tower Type 3
+            Numpad 4 - Tower Type 4";
+
+            Console.WriteLine("{0}", controls);
+
+        }
+        #endregion
+
+
+
         private static void Main()
         {
             RemoveScrollBars();
@@ -339,14 +381,17 @@ namespace Game
                 }
                 if (startNewGame)
                 {
-                    
+                    DrawStation();
+
                     stopwatch.Start();
+                 
+
                     //First phase: Placing the towers
                     while (stopwatch.ElapsedMilliseconds <= 20000)
-                        // 20 sec to place the towers before the creeps spawn.
+                    // 20 sec to place the towers before the creeps spawn.
                     {
                         Console.SetCursorPosition(82, 42);
-                        Console.WriteLine("Time(20 sec): " + (stopwatch.ElapsedMilliseconds/1000));
+                        Console.WriteLine("Time(20 sec): " + (stopwatch.ElapsedMilliseconds / 1000));
                         Console.SetCursorPosition(2, 44);
                         Console.WriteLine("Money: " + playerMoney);
                         Console.SetCursorPosition(playerCurrentPossitionX, playerCurrentPossitionY);
@@ -359,13 +404,13 @@ namespace Game
                     Console.CursorVisible = false;
 
 
-                    var creepSpawn =new Timer(e => Enemies.WaveInitialization(3 + randomGenerator.Next(0, 3), ref mainEnemies), null,
+                    var creepSpawn = new Timer(e => Enemies.WaveInitialization(3 + randomGenerator.Next(0, 3), ref mainEnemies), null,
                             TimeSpan.Zero, TimeSpan.FromSeconds(10)); //Creeps spawn every 10 seconds.
                     bool isInitializedWave = false;
 
                     //Second phase: fighting with the creeps.
                     while (stopwatch.ElapsedMilliseconds <= 30000)
-                        // 30 sec to fight with the creeps before the game end.
+                    // 30 sec to fight with the creeps before the game end.
                     {
                         Towers.TowerPlacement(towers);
                         if (!isInitializedWave)
@@ -374,13 +419,13 @@ namespace Game
                             //Manual initialization of the wave for the first time.
                             isInitializedWave = true;
                         }
-                      
-                        
+
+
                         //Print WaveDuration,Score and Money
                         Console.SetCursorPosition(75, 42);
-                        Console.WriteLine("Wave duration: " + (30 - (stopwatch.ElapsedMilliseconds/1000)));
+                        Console.WriteLine("Wave duration: " + (30 - (stopwatch.ElapsedMilliseconds / 1000)));
                         Console.SetCursorPosition(2, 42);
-                        Console.WriteLine("Score: " + Enemies.enemiesKilled*100);
+                        Console.WriteLine("Score: " + Enemies.enemiesKilled * 100);
                         Console.SetCursorPosition(2, 44);
                         Console.WriteLine("Money: " + playerMoney);
                         for (int i = 0; i < mainEnemies.Count; i++)
@@ -390,33 +435,161 @@ namespace Game
                         Thread.Sleep(500);
 
                         Towers.TowerRangeCheck(towers, ref mainEnemies);
-                        
+
                         DisposeTheDeadEnemies(ref mainEnemies);
                         //DrawEveryThing(); *Not ready yet ...
                         //Thread.Sleep(500);
                         Console.Clear();
-                        
+
 
                     }
                     creepSpawn.Dispose();
                     //End of the Game
+
                     Console.SetCursorPosition(30, 12);
+                    Console.WriteLine("Please enter you name:");
+                    Console.SetCursorPosition(30, 13);
+                    string playerName = Console.ReadLine();
+                    Console.SetCursorPosition(30, 16);
                     Console.WriteLine("Congratulations your final score is:" +
-                                      (playerMoney + Enemies.enemiesKilled*100));
+                                      (playerMoney + Enemies.enemiesKilled * 100));
                     startNewGame = false;
-                    playerMoney += Enemies.enemiesKilled*100;
+                    playerMoney += Enemies.enemiesKilled * 100;
+                    WriteHighscore(playerName, playerMoney);
+
 
                 }
 
 
             }
 
-
-
-
             Thread.Sleep(100);
+        }
 
+
+        public static void DrawStation()
+        {
+            int n = 10;
+
+            Console.WriteLine("{0}{1}{0}",
+                new string(' ', n),
+                new string('-', n));
+
+            Console.WriteLine("{0}/{2}\\{1}",
+                new string(' ', n - 1),
+                new string(' ', n - 1),
+                new string(' ', n));
+
+            Console.WriteLine("{0}\\{2}/{1}",
+                new string(' ', n - 1),
+                new string(' ', n - 1),
+                new string(' ', n));
+
+            Console.WriteLine("{0}{1}{0}",
+                new string(' ', n),
+                new string('-', n));
+
+            Console.WriteLine("{0}/{2}\\{1}",
+                new string(' ', n + 1),
+                new string(' ', n - 1),
+                new string(' ', n / 2 + 1));
+
+            for (int i = 0; i < n / 2 - 1; i++)
+            {
+                Console.WriteLine("{0}|{2}|{1}",
+                    new string(' ', n + 1),
+                    new string(' ', n + 1),
+                    new string(' ', n / 2 + 1));
+            }
+
+            Console.WriteLine("{0}\\{2}/{1}",
+                new string(' ', n + 1),
+                new string(' ', n - 1),
+                new string(' ', n / 2 + 1));
+
+            Console.WriteLine("{0}{1}{0}",
+                new string(' ', n / n + 1),
+                new string('-', n * 3 - 2));
+
+            Console.WriteLine(" /{0}\\",
+                new string(' ', n * 3 - 2));
+
+            Console.WriteLine(" \\{0}/",
+                new string(' ', n * 3 - 2));
+
+            Console.WriteLine("{0}{1}{0}",
+                new string(' ', n / n + 1),
+                new string('-', n * 3 - 2));
+
+            Console.WriteLine("{0}/{2}\\{1}",
+                new string(' ', n + 1),
+                new string(' ', n - 1),
+                new string(' ', n / 2 + 1));
+
+            for (int i = 0; i < n / 2 - 1; i++)
+            {
+                Console.WriteLine("{0}|{2}|{1}",
+                    new string(' ', n + 1),
+                    new string(' ', n + 1),
+                    new string(' ', n / 2 + 1));
+            }
+
+            Console.WriteLine("{0}\\{2}/{1}",
+                new string(' ', n + 1),
+                new string(' ', n - 1),
+                new string(' ', n / 2 + 1));
+
+            Console.WriteLine("{0}{1}{0}",
+                new string(' ', n / n + 1),
+                new string('-', n * 3 - 2));
+
+            Console.WriteLine(" /{0}\\",
+                new string(' ', n * 3 - 2));
+
+            Console.WriteLine(" \\{0}/",
+                new string(' ', n * 3 - 2));
+
+            Console.WriteLine("{0}{1}{0}",
+                new string(' ', n / n + 1),
+                new string('-', n * 3 - 2));
+
+            Console.WriteLine("{0}/{2}\\{1}",
+                new string(' ', n + 1),
+                new string(' ', n - 1),
+                new string(' ', n / 2 + 1));
+
+            for (int i = 0; i < n / 2 - 1; i++)
+            {
+                Console.WriteLine("{0}|{2}|{1}",
+                    new string(' ', n + 1),
+                    new string(' ', n + 1),
+                    new string(' ', n / 2 + 1));
+            }
+
+            Console.WriteLine("{0}\\{2}/{1}",
+                new string(' ', n + 1),
+                new string(' ', n - 1),
+                new string(' ', n / 2 + 1));
+
+            Console.WriteLine("{0}{1}{0}",
+                new string(' ', n),
+                new string('-', n));
+
+            Console.WriteLine("{0}/{2}\\{1}",
+                new string(' ', n - 1),
+                new string(' ', n - 1),
+                new string(' ', n));
+
+            Console.WriteLine("{0}\\{2}/{1}",
+                new string(' ', n - 1),
+                new string(' ', n - 1),
+                new string(' ', n));
+
+            Console.WriteLine("{0}{1}{0}",
+                new string(' ', n),
+                new string('-', n));
         }
     }
 }
+
 

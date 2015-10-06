@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Game
 {
-    class Enemies 
+    class Enemies
     {
         private static int health;
         private bool isAlive;
@@ -18,11 +18,11 @@ namespace Game
         public static int enemiesKilled = 0;
 
 
-        public  void CheckAlive(object o)
+        public void CheckAlive(object o)
         {
             if (IsAlive)
             {
-                EnemyPosY++;
+                EnemyPosX--;
             }
             else
             {
@@ -45,18 +45,18 @@ namespace Game
                     EnemyImage = " () ";
                     break;
                 default:
-                    EnemyImage = " ! " ;
+                    EnemyImage = " ! ";
                     break;
             }
-            
+
             EnemyPosX = posX;
             EnemyPosY = posY;
             IsAlive = isAlive;
             Health = health;
-            Timer move = new Timer(CheckAlive,null,TimeSpan.Zero,TimeSpan.FromSeconds(2));//Creeps move every 2 seconds.
+            Timer move = new Timer(CheckAlive, null, TimeSpan.Zero, TimeSpan.FromSeconds(2));//Creeps move every 2 seconds.
         }
 
-        
+
 
         public int Health { get; set; }
         public bool IsAlive { get; set; }
@@ -79,7 +79,7 @@ namespace Game
                 enemiesKilled++;
             }
             Console.Write(enemyObj.EnemyImage);
-            
+
         }
         #endregion
 
@@ -111,21 +111,21 @@ namespace Game
         //        Console.Write(enemies[i].EnemyImage);
         //        Thread.Sleep(100);
         //    }
-            
-           
+
+
         //}
-        
+
         #region WaveInitialization()
-        public static void WaveInitialization(int enemiesAmount,ref List<Enemies> enemies)//Initialize the Wave of Enemies(Top Left)
+        public static void WaveInitialization(int enemiesAmount, ref List<Enemies> enemies)//Initialize the Wave of Enemies(Top Left)
         {
             Random randGen = new Random();
 
-           
-                int randPosX = randGen.Next(5, 31);
-                int randType = randGen.Next(0, 3);
+
+            int randPosY = randGen.Next(5, 31);
+            int randType = randGen.Next(0, 3);
             if (enemies.Count == 0)
             {
-                enemies.Add(new Enemies(randType, 100, randPosX, 0, true));
+                enemies.Add(new Enemies(randType, 100, Console.WindowWidth - 5, randPosY, true));
             }
 
             {
@@ -134,19 +134,19 @@ namespace Game
                 {
                     for (int j = 0; j < enemies.Count; j++)
                     {
-                        randPosX = randGen.Next(5, 31);
+                        randPosY = randGen.Next(5, 31);
                         randType = randGen.Next(0, 2);
-                        if ((randPosX<enemies[j].EnemyPosX || randPosX>enemies[j].EnemyPosX+3))
+                        if (randPosY < enemies[j].EnemyPosY || randPosY > enemies[j].EnemyPosY + 3)
                         {
-                            enemies.Add(new Enemies(randType, 100, randPosX, 0, true));
+                            enemies.Add(new Enemies(randType, 100, Console.WindowWidth - 5, randPosY, true));
                             counter++;
                             break;
                         }
                     }
-                    
+
                 }
             }
-            
+
         }
         #endregion
     }

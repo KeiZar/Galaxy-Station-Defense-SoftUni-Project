@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Game
 {
@@ -22,11 +20,22 @@ namespace Game
         private static bool crowdControl = false;
         private static int towerPosX;
         private static int towerPosY;
+        private static int towerPrice = 0;
 
 
-        public Towers(int towerType, int towerRange, int towerPower, bool isGround, int fireRate, bool crowdControl)
+        public Towers(int towerType, int towerRange, int towerPower, bool isGround, int fireRate, bool crowdControl,int posX, int posY,int towerPrice)
         {
             // TODO
+            TowerType = towerType;
+            TowerRange = towerRange;
+            TowerPower = towerPower;
+            IsGround = isGround;
+            FireRate = fireRate;
+            CrowdControl = crowdControl;
+            TowerPosX = posX;
+            TowerPosY = posY;
+            TowerPrice = towerPrice;
+
         }
 
         public Towers()
@@ -41,19 +50,116 @@ namespace Game
         public bool CrowdControl { get; set; }
         public int TowerPosX { get; set; }
         public int TowerPosY { get; set; }
+        public int TowerPrice { get; set; }
 
-        //Write some other methods to be used for fire and stuff.
-
-        //Write usable method for proper attack after range check(including if enemy is ground or air)
-        static void TowerRangeCheck(int towerPosX, int towerPosY, List<Enemies> enemy )
+        #region TowerRangeCheck()
+        public static void TowerRangeCheck(List<Towers> towers,ref List<Enemies> enemies)
         {
-            // TODO: Check current tower possition with enemy current posstion.
+            for (int i = 0; i < towers.Count; i++)
+            {
+                for (int j = 0; j < enemies.Count; j++)
+                {
+                    if (Math.Pow(enemies[j].EnemyPosX - towers[i].TowerPosX, 2) +
+                        Math.Pow(enemies[j].EnemyPosY - towers[i].TowerPosY, 2) <=
+                        Math.Pow(towers[i].TowerRange, 2))
+                    {
+                        enemies[j].Health -= 5;
+                        switch (enemies[j].EnemyType)
+                        {
+                            case 0:
+                                enemies[j].EnemyImage = " @- ";
+                                break;
+                            case 1:
+                                enemies[j].EnemyImage = " $- ";
+                                break;
+                            case 2:
+                                enemies[j].EnemyImage = " ()- ";
+                                break;
+                            default:
+                                enemies[j].EnemyImage = " !- ";
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        enemies[j].EnemyImage = enemies[j].EnemyImage.Replace('-', ' ');
+                    }
+                }
+            }
         }
+        #endregion
 
-        public void TowerPlacement(int possitionX, int possitionY, int towerType)
+        #region CouldAddTowerCheck()
+        public static bool CouldAddTowerCheck(int playerCurrentPossitionX, int playerCurrentPossitionY,List<Towers> towers)
         {
-            // TODO: JUST DO IT! ITS IN THE NAME!
+            foreach (var tower in towers)
+            {
+                if ((playerCurrentPossitionX >= tower.TowerPosX - 5 && playerCurrentPossitionX <= tower.TowerPosX + 5) &&
+                    (playerCurrentPossitionY >= tower.TowerPosY - 2 && playerCurrentPossitionY <= tower.TowerPosY + 3))
+                {
+                    return false;
+                }
+            }
+            
+            return true;
+            
         }
+        #endregion
+
+        #region TowerPlacement()
+        public static void TowerPlacement(List<Towers> towers)
+        {
+                 // TowerPattern:
+                 //  6 chars width , 3 chars height;
+                 // If you want to change it, you should change the CouldAddTowerCheck function accordingly.
+            foreach (var tower in towers)
+            {
+                
+                switch (tower.TowerType)
+                {
+                    case 1:
+                        Console.SetCursorPosition(tower.TowerPosX, tower.TowerPosY);
+                        Console.Write("  -.- ");
+                        Console.SetCursorPosition(tower.TowerPosX, tower.TowerPosY + 1);
+                        Console.Write("  (.) ");
+                        Console.SetCursorPosition(tower.TowerPosX, tower.TowerPosY + 2);
+                        Console.Write("++++++");
+                        Console.SetCursorPosition(tower.TowerPosX,tower.TowerPosY);
+                        break;
+
+                    case 2:
+                        Console.SetCursorPosition(tower.TowerPosX, tower.TowerPosY);
+                        Console.Write("  <|> ");
+                        Console.SetCursorPosition(tower.TowerPosX, tower.TowerPosY + 1);
+                        Console.Write(" <(*)>");
+                        Console.SetCursorPosition(tower.TowerPosX, tower.TowerPosY + 2);
+                        Console.Write("======");
+                        Console.SetCursorPosition(tower.TowerPosX,tower.TowerPosY);
+                        break;
+
+                    case 3:
+                      Console.SetCursorPosition(tower.TowerPosX, tower.TowerPosY);
+                        Console.Write("  - - ");
+                        Console.SetCursorPosition(tower.TowerPosX, tower.TowerPosY + 1);
+                        Console.Write("  ( ) ");
+                        Console.SetCursorPosition(tower.TowerPosX, tower.TowerPosY + 2);
+                        Console.Write("++  ++");
+                        Console.SetCursorPosition(tower.TowerPosX,tower.TowerPosY);
+                        break;
+                    case 4:
+                        Console.SetCursorPosition(tower.TowerPosX, tower.TowerPosY);
+                        Console.Write("   *  ");
+                        Console.SetCursorPosition(tower.TowerPosX, tower.TowerPosY + 1);
+                        Console.Write("  *** ");
+                        Console.SetCursorPosition(tower.TowerPosX, tower.TowerPosY + 2);
+                        Console.Write("******");
+                        Console.SetCursorPosition(tower.TowerPosX,tower.TowerPosY);
+                        break;
+                }
+            }
+
+        }
+        #endregion
 
     }
 }

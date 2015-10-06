@@ -1,34 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.Remoting.Channels;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+
+
 
 namespace Game
 {
-    class Program
+    internal class Program
     {
-        static List<Towers> towers = new List<Towers>();
-        static int playerStartPossitionX = 3;
-        static int playerStartPossitionY = 3;
-        static int playerCurrentPossitionX = 0;
-        static int playerCurrentPossitionY = 0;
-        static bool isRuning = true;
-        static bool startNewGame = false;
-        static int showMenus = 0; // 0 - main menu, 1 - highscore table, 2 - How to play
-        private static string playerScore = "Highscore! YAAA!";
+        #region Global Variables
 
-        static void RemoveScrollBars() // Sets window size and locks it in place.
+        private static Random randomGenerator = new Random();
+        static Stopwatch stopwatch = new Stopwatch();
+        private static List<Towers> towers = new List<Towers>();
+        private static List<Enemies> mainEnemies = new List<Enemies>();
+        private static int playerStartPossitionX = 3;
+        private static int playerStartPossitionY = 3;
+        private static int playerCurrentPossitionX;
+        private static int playerCurrentPossitionY;
+        private static bool isRuning = true;
+        private static bool startNewGame;
+        private static int showMenus; // 0 - main menu, 1 - highscore table, 2 - How to play
+        public static int playerMoney = 3000;
+
+
+        #endregion
+
+        #region Functions
+        #region RemoveScrollBars()
+
+        private static void RemoveScrollBars() // Sets window size and locks it in place.
         {
             Console.WindowHeight = 50;
             Console.WindowWidth = 100;
             Console.BufferHeight = 50;
             Console.BufferWidth = 100;
         }
+
+        #endregion
+
+        #region MenuControl()
 
         private static void MenuControl(ConsoleKey key) // TODO: Needs adjusting with Menu screens
         {
@@ -39,9 +52,24 @@ namespace Game
             C - How to play
             V - Exit game/back button
             */
+            Console.SetCursorPosition(45, 20);
+            Console.WriteLine("Press Z - Start New Game");
+            Console.SetCursorPosition(45, 22);
+            Console.WriteLine("Press X - Highscore Table");
+            Console.SetCursorPosition(45, 24);
+            Console.WriteLine("Press C - How to play");
+            Console.SetCursorPosition(45, 26);
+            Console.WriteLine("Press V - Exit game/back button");
             if (key == ConsoleKey.Z)
             {
                 startNewGame = true;
+                mainEnemies.Clear();
+                Enemies.enemiesKilled = 0;
+                towers.Clear();
+                stopwatch.Reset();
+                stopwatch.Stop();
+                Console.CursorVisible = true;
+                Console.Clear();
             }
             if (key == ConsoleKey.X)
             {
@@ -65,15 +93,21 @@ namespace Game
             {
                 if (showMenus == 0)
                 {
+
                     isRuning = false; // This kills the console.
+                    Environment.Exit(0);
                 }
                 if (showMenus == 1 || showMenus == 2)
                 {
-                    showMenus = 0; 
+                    showMenus = 0;
                 }
-                
+
             }
         }
+
+        #endregion
+
+        #region ShowHighscore()
 
         private static void ShowHighscore()
         {
@@ -93,9 +127,11 @@ namespace Game
                 } while (reader != null);
             }
             Thread.Sleep(1000); // TODO: REMOVE THIS AT SOME POINT!!!
-
-
         }
+
+        #endregion
+
+        #region WriteHighscore()
 
         private static void WriteHighscore() // Use this when game has finished to write the new highscore.
         {
@@ -110,99 +146,139 @@ namespace Game
             {
                 do
                 {
-                    highscoreWriter.WriteLine(playerScore);
+                    highscoreWriter.WriteLine(playerMoney);
 
                 } while (hasPlayerDied);
             }
         }
 
-        static void DrawPlayerMovement()
-           {
-               Console.SetCursorPosition(playerCurrentPossitionX, playerCurrentPossitionY);
-           }
-           private static void PlaceTowers(ConsoleKey key, List<Towers> towers) 
-           {
-            DrawPlayerMovement();
-            int towerType;
-            if (key == ConsoleKey.NumPad1)
+        #endregion
+
+        #region DrawPlayerMovement
+
+        private static void DrawPlayerMovement()
+        {
+            Console.SetCursorPosition(playerCurrentPossitionX, playerCurrentPossitionY);
+        }
+
+        #endregion
+
+        #region PlaceTowers()
+
+        private static void PlaceTowers(List<Towers> towers)
+        {
+            if (Console.KeyAvailable)
             {
-                bool couldAdd = Towers.CouldAddTowerCheck(playerCurrentPossitionX, playerCurrentPossitionY, towers);
-                if (couldAdd)
+                ConsoleKeyInfo key = Console.ReadKey();
+                MovePlayer(key.Key);
+                DrawPlayerMovement();
+
+
+                if (key.Key == ConsoleKey.NumPad1)
                 {
-                    towers.Add(new Towers(1, 3, 20, true, 3, false, playerCurrentPossitionX, playerCurrentPossitionY));
+                    bool couldAdd = Towers.CouldAddTowerCheck(playerCurrentPossitionX, playerCurrentPossitionY, towers);
+                    if (couldAdd)
+                    {
+
+                        if (playerMoney >= 100)
+                        {
+                            towers.Add(new Towers(1, 3, 20, true, 3, false, playerCurrentPossitionX,
+                                playerCurrentPossitionY, 100));
+                            playerMoney -= 100;
+                        }
+                    }
+                    else
+                    {
+                        Console.Beep();
+                    }
+                    Towers.TowerPlacement(towers);
+                    playerCurrentPossitionX = Console.CursorLeft;
+                    playerCurrentPossitionY = Console.CursorTop;
                 }
-                else
+                if (key.Key == ConsoleKey.NumPad2)
                 {
-                    Console.Beep();
+                    bool couldAdd = Towers.CouldAddTowerCheck(playerCurrentPossitionX, playerCurrentPossitionY, towers);
+                    if (couldAdd)
+                    {
+                        if (playerMoney >= 200)
+                        {
+                            towers.Add(new Towers(2, 7, 20, true, 3, false, playerCurrentPossitionX,
+                                playerCurrentPossitionY, 200));
+                            playerMoney -= 200;
+                        }
+                    }
+                    else
+                    {
+                        Console.Beep();
+                    }
+                    Towers.TowerPlacement(towers);
+                    playerCurrentPossitionX = Console.CursorLeft;
+                    playerCurrentPossitionY = Console.CursorTop;
                 }
-                Towers.TowerPlacement(towers);
-                playerCurrentPossitionX = Console.CursorLeft;
-                playerCurrentPossitionY = Console.CursorTop;
-            }
-            if (key == ConsoleKey.NumPad2)
-            {
-                bool couldAdd = Towers.CouldAddTowerCheck(playerCurrentPossitionX, playerCurrentPossitionY, towers);
-                if (couldAdd)
+                if (key.Key == ConsoleKey.NumPad3)
                 {
-                    towers.Add(new Towers(2,7, 20, true, 3, false, playerCurrentPossitionX, playerCurrentPossitionY));
+                    bool couldAdd = Towers.CouldAddTowerCheck(playerCurrentPossitionX, playerCurrentPossitionY, towers);
+                    if (couldAdd)
+                    {
+                        if (playerMoney >= 200)
+                        {
+                            towers.Add(new Towers(3, 7, 20, true, 3, false, playerCurrentPossitionX,
+                                playerCurrentPossitionY, 200));
+                            playerMoney -= 200;
+                        }
+                    }
+                    else
+                    {
+                        Console.Beep();
+                    }
+                    Towers.TowerPlacement(towers);
+                    playerCurrentPossitionX = Console.CursorLeft;
+                    playerCurrentPossitionY = Console.CursorTop;
                 }
-                else
+                if (key.Key == ConsoleKey.NumPad4)
                 {
-                    Console.Beep();
+                    bool couldAdd = Towers.CouldAddTowerCheck(playerCurrentPossitionX, playerCurrentPossitionY, towers);
+                    if (couldAdd)
+                    {
+                        if (playerMoney >= 300)
+                        {
+                            towers.Add(new Towers(4, 7, 20, true, 3, false, playerCurrentPossitionX,
+                                playerCurrentPossitionY, 300));
+                            playerMoney -= 300;
+                        }
+                    }
+                    else
+                    {
+                        Console.Beep();
+                    }
+                    Towers.TowerPlacement(towers);
+                    playerCurrentPossitionX = Console.CursorLeft;
+                    playerCurrentPossitionY = Console.CursorTop;
                 }
-                Towers.TowerPlacement(towers);
-                playerCurrentPossitionX = Console.CursorLeft;
-                playerCurrentPossitionY = Console.CursorTop;
-            }
-            if (key == ConsoleKey.NumPad3)
-            {
-                bool couldAdd = Towers.CouldAddTowerCheck(playerCurrentPossitionX, playerCurrentPossitionY, towers);
-                if (couldAdd)
-                {
-                    towers.Add(new Towers(3, 7, 20, true, 3, false, playerCurrentPossitionX, playerCurrentPossitionY));
-                }
-                else
-                {
-                    Console.Beep();
-                }
-                Towers.TowerPlacement(towers);
-                playerCurrentPossitionX = Console.CursorLeft;
-                playerCurrentPossitionY = Console.CursorTop;
-            }
-            if (key == ConsoleKey.NumPad4)
-            {
-                bool couldAdd = Towers.CouldAddTowerCheck(playerCurrentPossitionX, playerCurrentPossitionY, towers);
-                if (couldAdd)
-                {
-                    towers.Add(new Towers(4, 7, 20, true, 3, false, playerCurrentPossitionX, playerCurrentPossitionY));
-                }
-                else
-                {
-                    Console.Beep();
-                }
-                Towers.TowerPlacement(towers);
-                playerCurrentPossitionX = Console.CursorLeft;
-                playerCurrentPossitionY = Console.CursorTop;
             }
         }
 
-        
-     
-        private static void MovePlayer(ConsoleKey key) //Player movement - needs adjusting if place size bigger then 1 symbol TODO: Detect collision with station!
+
+        #endregion
+
+        #region MovePlayer
+
+        private static void MovePlayer(ConsoleKey key)
+            //Player movement - needs adjusting if place size bigger then 1 symbol TODO: Detect collision with station!
         {
             if (key == ConsoleKey.UpArrow)
             {
                 if (playerCurrentPossitionY > 3)
                 {
-                    playerCurrentPossitionY-=1;
+                    playerCurrentPossitionY -= 1;
                 }
 
             }
             if (key == ConsoleKey.DownArrow)
             {
-                if (playerCurrentPossitionY < Console.WindowHeight-4)
+                if (playerCurrentPossitionY < Console.WindowHeight - 4)
                 {
-                    playerCurrentPossitionY+=1;
+                    playerCurrentPossitionY += 1;
                 }
 
             }
@@ -210,125 +286,137 @@ namespace Game
             {
                 if (playerCurrentPossitionX > 2)
                 {
-                    playerCurrentPossitionX-=1;
+                    playerCurrentPossitionX -= 1;
                 }
             }
             if (key == ConsoleKey.RightArrow)
             {
-                if (playerCurrentPossitionX < Console.WindowWidth-6)
+                if (playerCurrentPossitionX < Console.WindowWidth - 6)
                 {
-                    playerCurrentPossitionX+=1;
+                    playerCurrentPossitionX += 1;
 
                 }
             }
         }
-      
-        static void WaveInitialization(List<Enemies> enemies)//Initialize the Wave of Enemies(Top Left)
+
+        #endregion
+
+        #region DisposeTheDeadEnemies
+
+        private static void DisposeTheDeadEnemies(ref List<Enemies> enemies)
         {
-            Random randGen = new Random();
-
-            for (int i = 0; i < enemies.Count; i++)
-            {
-                int randPosX = randGen.Next(1, 49);
-                int randType = randGen.Next(0, 2);
-                enemies.Add(new Enemies(randType, 100, randPosX, 1, true));
-
-            }
+            enemies.RemoveAll(p => p.IsAlive == false);
         }
 
-        static void WaveMovement(List<Enemies> enemies, string direction) //Moves the enemies in the wave // Move direction should be random!
-        {
-            for (int i = 0; i < enemies.Count; i++)
-            {
-                if (enemies[i].IsAlive)
-                {
-                    enemies[i].EnemyMovement(direction);
-                }
-                if (enemies[i].Health <= 0)
-                {
-                    enemies[i].IsAlive = false;
-                }
-            }
-        }
+        #endregion
 
-        static void Main(string[] args)
+        //static void DrawEveryThing()//Not ready yet...
+        //{
+        //    Towers.TowerPlacement(towers);
+        //    Console.CursorVisible = false;
+        //    for (int i = 0; i < mainEnemies.Count; i++)
+        //    {
+        //        Enemies.DrawEnemy(mainEnemies[i]);
+        //    }
+        //    Thread.Sleep(100);
+
+        //}
+#endregion
+        private static void Main()
         {
             RemoveScrollBars();
 
-            // PLACEHOLDERS!!!
-            List<Enemies> mainEnemies = new List<Enemies>();
-           
-            string someDirection = "Down";
-            // PLACEHOLDERS!!!
-            
-
-
             while (isRuning)
             {
-
-                /*
-                Everything is more or less a lot of if-else checks and a lot of Console.Writeline();
-                Be mindful of the other parts of the code and ask questions on Skype or if you need help!
-                We will make a lot of static methods and we will only write them in this file. No OOP elements!
-                */
-
-                
                 //Prevents Console getting stuck on waiting for a key press, it only triggered when a key is pressed.
-                if (Console.KeyAvailable)
+                if (!startNewGame)
                 {
-                    ConsoleKeyInfo keyInfo = Console.ReadKey();
-                    if (startNewGame)
+                    if (Console.KeyAvailable)
                     {
-                        MovePlayer(keyInfo.Key);
-                        PlaceTowers(keyInfo.Key,towers); // Implement towers!
-                     }
-                    else
-                    {
+                        ConsoleKeyInfo keyInfo = Console.ReadKey();
                         MenuControl(keyInfo.Key);
                     }
                 }
-                /*
-                TODO: Towers
-                TODO: Implement 4 different towers [See Trello for more details]
-                */
+                if (startNewGame)
+                {
+                    
+                    stopwatch.Start();
+                    //First phase: Placing the towers
+                    while (stopwatch.ElapsedMilliseconds <= 20000)
+                        // 20 sec to place the towers before the creeps spawn.
+                    {
+                        Console.SetCursorPosition(82, 42);
+                        Console.WriteLine("Time(20 sec): " + (stopwatch.ElapsedMilliseconds/1000));
+                        Console.SetCursorPosition(2, 44);
+                        Console.WriteLine("Money: " + playerMoney);
+                        Console.SetCursorPosition(playerCurrentPossitionX, playerCurrentPossitionY);
+                        PlaceTowers(towers);
+                    }
+                    stopwatch.Stop();
+                    stopwatch.Reset();
+                    stopwatch.Start();
+                    Console.Clear();
+                    Console.CursorVisible = false;
 
-                //Console.Clear();
-                // TODO: Implement "DrawMenu();" else Console.Clear(); just wipes the console entirely
 
-                /*
-                CHECK MENU CONTROL METHOD ABOVE!!!
-                TODO: Menu
-                TODO: Implement "Start new game"
-                TODO: Implement "Highscore" option
-                TODO: Implement "How to play" option
-                TODO: Implement stop function [Use "Environment.Exit(-1);" in menu]
-                */
+                    var creepSpawn =new Timer(e => Enemies.WaveInitialization(3 + randomGenerator.Next(0, 3), ref mainEnemies), null,
+                            TimeSpan.Zero, TimeSpan.FromSeconds(10)); //Creeps spawn every 10 seconds.
+                    bool isInitializedWave = false;
+
+                    //Second phase: fighting with the creeps.
+                    while (stopwatch.ElapsedMilliseconds <= 30000)
+                        // 30 sec to fight with the creeps before the game end.
+                    {
+                        Towers.TowerPlacement(towers);
+                        if (!isInitializedWave)
+                        {
+                            Enemies.WaveInitialization(2, ref mainEnemies);
+                            //Manual initialization of the wave for the first time.
+                            isInitializedWave = true;
+                        }
+                      
+                        
+                        //Print WaveDuration,Score and Money
+                        Console.SetCursorPosition(75, 42);
+                        Console.WriteLine("Wave duration: " + (30 - (stopwatch.ElapsedMilliseconds/1000)));
+                        Console.SetCursorPosition(2, 42);
+                        Console.WriteLine("Score: " + Enemies.enemiesKilled*100);
+                        Console.SetCursorPosition(2, 44);
+                        Console.WriteLine("Money: " + playerMoney);
+                        for (int i = 0; i < mainEnemies.Count; i++)
+                        {
+                            Enemies.DrawEnemy(mainEnemies[i]);
+                        }
+                        Thread.Sleep(500);
+
+                        Towers.TowerRangeCheck(towers, ref mainEnemies);
+                        
+                        DisposeTheDeadEnemies(ref mainEnemies);
+                        //DrawEveryThing(); *Not ready yet ...
+                        //Thread.Sleep(500);
+                        Console.Clear();
+                        
+
+                    }
+                    creepSpawn.Dispose();
+                    //End of the Game
+                    Console.SetCursorPosition(30, 12);
+                    Console.WriteLine("Congratulations your final score is:" +
+                                      (playerMoney + Enemies.enemiesKilled*100));
+                    startNewGame = false;
+                    playerMoney += Enemies.enemiesKilled*100;
+
+                }
 
 
-
-                /*
-                TODO: Enemy movement
-                TODO: Implement enemy spawn and movement
-                TODO: Implement enemy HP, Points and gold drop                
-                TODO: Implement ground and air only enemies
-                */
-                WaveInitialization(mainEnemies);
-                WaveMovement(mainEnemies, someDirection); // Enemies go down on console when spawned - temporary - change someDirection for anther direction
-
-                /*
-                TODO: Map
-                TODO: Implement Station possition on console + HP of station
-                TODO: Player start possition + player collision with station - see player movement method.
-                */
-
-                /*
-                TODO: At game end, show on screen score and first 3 high score possitions!
-                TODO: If new score is > from current highscores, add and move possitions!
-                TODO: Write to file the highscores!
-                */
-
-                Thread.Sleep(60);
             }
+
+
+
+
+            Thread.Sleep(100);
+
         }
     }
 }
+

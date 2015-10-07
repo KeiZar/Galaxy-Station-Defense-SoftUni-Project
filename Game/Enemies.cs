@@ -17,16 +17,26 @@ namespace Game
         private string enemyImage;
         public static int enemiesKilled = 0;
 
+        public int Health { get; set; }
+        public bool IsAlive { get; set; }
+        public int EnemyType { get; set; }// 0 - Ground type ; 1 - Air Type;
+        public double EnemyPosX { get; set; }
+        public double EnemyPosY { get; set; }
+        private double EnemySpeed { get; set; }
+        public int EnemyScore { get; set; }
+        public string EnemyImage { get; set; }
+        private Timer move;
 
-        public void CheckAlive(object o)
+
+        public void CheckMove()
         {
             if (IsAlive)
             {
-                EnemyPosX--;
+                EnemyPosX -= EnemySpeed;
             }
             else
             {
-                IsAlive = false;
+                isAlive = false;
             }
 
         }
@@ -37,46 +47,50 @@ namespace Game
             {
                 case 0:
                     EnemyImage = " @ ";
+                    EnemySpeed = 8.056;
                     break;
                 case 1:
                     EnemyImage = " $ ";
+                    EnemySpeed = 4;
                     break;
                 case 2:
                     EnemyImage = " () ";
+                    EnemySpeed = 4;
                     break;
                 default:
                     EnemyImage = " ! ";
+                    EnemySpeed = 1.69;
                     break;
             }
+
 
             EnemyPosX = posX;
             EnemyPosY = posY;
             IsAlive = isAlive;
             Health = health;
-            Timer move = new Timer(CheckAlive, null, TimeSpan.Zero, TimeSpan.FromSeconds(2));//Creeps move every 2 seconds.
+            move = new Timer(e => CheckMove(), null,TimeSpan.Zero, TimeSpan.FromSeconds(2));//Creeps move every 2 seconds.
         }
 
 
 
-        public int Health { get; set; }
-        public bool IsAlive { get; set; }
-        public int EnemyType { get; set; }// 0 - Ground type ; 1 - Air Type;
-        public double EnemyPosX { get; set; }
-        public double EnemyPosY { get; set; }
-        public double EnemySpeed { get; set; }
-        public int EnemyScore { get; set; }
-        public string EnemyImage { get; set; }
-
+        
         #region DrawEnemy()
-        public static void DrawEnemy(Enemies enemyObj)
+        public static void DrawEnemy(Enemies enemyObj,ref int score)
         {
 
-            Console.SetCursorPosition(Math.Min(90, (int)enemyObj.EnemyPosX), Math.Min(45, (int)enemyObj.EnemyPosY));
+            Console.SetCursorPosition(Math.Max(2,(int)enemyObj.EnemyPosX),(int)enemyObj.EnemyPosY);
             if (enemyObj.Health <= 0)
             {
                 enemyObj.EnemyImage = "DEAD";
                 enemyObj.IsAlive = false;
                 enemiesKilled++;
+            }
+            if (enemyObj.EnemyPosX < 15 || (((enemyObj.EnemyPosY > 10 && enemyObj.EnemyPosY < 15) && enemyObj.EnemyPosX < 30) || (enemyObj.EnemyPosY>20 && enemyObj.EnemyPosY<24) && enemyObj.EnemyPosX < 30))
+            {
+                enemyObj.EnemyImage = "*DMG*";
+                enemyObj.IsAlive = false;
+                score -= 100;
+                Console.Beep();
             }
             Console.Write(enemyObj.EnemyImage);
 

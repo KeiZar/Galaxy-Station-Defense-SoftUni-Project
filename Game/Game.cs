@@ -53,6 +53,7 @@ namespace Game
             C - How to play
             V - Exit game/back button
             */
+            Console.Clear();
             Console.SetCursorPosition(45, 20);
             Console.WriteLine("Press Z - Start New Game");
             Console.SetCursorPosition(45, 22);
@@ -338,19 +339,9 @@ namespace Game
 
         
 
-        //static void DrawEveryThing()//Not ready yet...
-        //{
-        //    Towers.TowerPlacement(towers);
-        //    Console.CursorVisible = false;
-        //    for (int i = 0; i < mainEnemies.Count; i++)
-        //    {
-        //        Enemies.DrawEnemy(mainEnemies[i]);
-        //    }
-        //    Thread.Sleep(100);
-
-        //}
         static void ShowControls()
         {
+
             string controls = @"
             Place towers anywhere on the field to protect the station.
                        

@@ -16,3 +16,6 @@ D:\SoftUni\09.2015 - Advanced C#\Teamwork\Galaxy Station Defense\Game\obj\Debug\
 D:\SoftUni\09.2015 - Advanced C#\Teamwork\Galaxy Station Defense\Game\bin\Debug\Game.exe
 D:\SoftUni\09.2015 - Advanced C#\Teamwork\Galaxy Station Defense\Game\bin\Debug\Game.pdb
 D:\SoftUni\09.2015 - Advanced C#\Teamwork\Galaxy Station Defense\Game\obj\Debug\Game.csprojResolveAssemblyReference.cache
+D:\SoftUni\09.2015 - Advanced C#\Teamwork\Galaxy Station Defense\Galaxy-Station-Defense-SoftUni-Project.git\trunk\Game\bin\Debug\Game.exe.config
+D:\SoftUni\09.2015 - Advanced C#\Teamwork\Galaxy Station Defense\Galaxy-Station-Defense-SoftUni-Project.git\trunk\Game\obj\Debug\Game.exe
+D:\SoftUni\09.2015 - Advanced C#\Teamwork\Galaxy Station Defense\Galaxy-Station-Defense-SoftUni-Project.git\trunk\Game\obj\Debug\Game.pdb
